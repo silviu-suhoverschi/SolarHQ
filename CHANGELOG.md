@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.0.9] - 2026-03-27
+
+### Fixed
+- `schemas/costs.py`: rename `date` import to `Date` to prevent field name `date` from shadowing the `datetime.date` type in Python 3.14 Pydantic annotation evaluation
+
 ## [1.0.8] - 2026-03-27
 
 ### Fixed
