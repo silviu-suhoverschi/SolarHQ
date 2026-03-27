@@ -17,6 +17,7 @@ ARG BUILD_ARCH BUILD_DATE BUILD_DESCRIPTION BUILD_NAME BUILD_REF BUILD_REPOSITOR
 
 # Python deps
 COPY backend/requirements.txt /app/backend/
+# hadolint ignore=DL3018
 RUN apk add --no-cache --virtual .build-deps build-base libffi-dev rust cargo \
     && pip3 install --no-cache-dir -r /app/backend/requirements.txt \
     && apk del .build-deps
