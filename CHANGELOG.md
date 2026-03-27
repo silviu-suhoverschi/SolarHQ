@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.0.11] - 2026-03-27
+
+### Fixed
+- Backend: serve `index.html` as template, injecting `X-Ingress-Path` header as `window.BASE_URL` per HA developer docs
+- Frontend: use `window.BASE_URL` as axios `baseURL` prefix instead of relying on `window.location.pathname`
+
 ## [1.0.10] - 2026-03-27
 
 ### Fixed
