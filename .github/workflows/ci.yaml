@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint-dockerfile:
+    name: Lint Dockerfile
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Hadolint
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: Dockerfile
+          failure-threshold: warning
+
+  lint-scripts:
+    name: Lint Shell Scripts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: ShellCheck
+        uses: ludeeus/action-shellcheck@2.0.0
+        with:
+          scandir: rootfs
+
+  validate-config:
+    name: Validate HA Config
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate YAML files
+        run: |
+          pip install pyyaml -q
+          python3 -c "
+          import yaml, sys
+          for f in ['config.yaml', 'build.yaml',
+                    'translations/en.yaml', 'translations/ro.yaml']:
+              yaml.safe_load(open(f))
+              print(f'✓ {f}')
+          "
+
+  test-backend:
+    name: Test Backend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install -r backend/requirements.txt pytest pytest-asyncio
+      - name: Run tests
+        run: |
+          if [ -d backend/tests ] && [ -n "$(ls backend/tests/*.py 2>/dev/null)" ]; then
+            pytest backend/tests/ -v
+          else
+            echo "No tests found — skipping"
+          fi
