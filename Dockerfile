@@ -2,6 +2,7 @@
 ARG BUILD_FROM
 
 # Stage 1 — build frontend (forced amd64: rolldown has no armv7/musl native binding)
+# hadolint ignore=DL3029
 FROM --platform=linux/amd64 node:20-alpine AS frontend-builder
 WORKDIR /build
 COPY frontend/package.json frontend/vite.config.js ./
