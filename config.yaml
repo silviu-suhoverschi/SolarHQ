@@ -1,5 +1,5 @@
 name: "SolarHQ"
-version: "1.0.7"
+version: "1.0.8"
 slug: "solarhq"
 description: "Solar energy monitoring for Home Assistant"
 url: "https://github.com/silviu-suhoverschi/SolarHQ"

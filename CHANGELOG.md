@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.0.8] - 2026-03-27
+
+### Fixed
+- Add `from __future__ import annotations` to all backend modules — fixes `TypeError: unsupported operand type(s) for |: 'NoneType' and 'NoneType'` caused by Python 3.14 (PEP 649) lazy annotation evaluation shadowing `date` field name over `datetime.date` import in Pydantic models
+
 ## [1.0.7] - 2026-03-27
 
 ### Fixed
