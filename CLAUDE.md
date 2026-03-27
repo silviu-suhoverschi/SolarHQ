@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **SolarHQ** is a Home Assistant addon that monitors solar energy installations and calculates financial performance (savings, ROI, payback period). It integrates with Home Assistant through the Supervisor API to auto-collect energy data from sensors.
 
-**Current status**: Documentation and planning phase. See `APPLICATION_SPECS.md` (Romanian) and `IMPLEMENTATION_PLAN.md` for the full spec and code templates. No source code exists yet — both documents contain the full planned structure and sample implementations.
+**Current status**: Source code fully implemented and building successfully. Multi-arch Docker images published to `ghcr.io/silviu-suhoverschi/solarhq/{arch}` via GitHub Actions.
 
 ## Architecture
 
@@ -23,35 +23,41 @@ Home Assistant Supervisor API (sensor discovery + LTS statistics)
 All components run inside a single Docker container managed by **s6-overlay v3** with this startup order:
 
 ```
-init-config → init-db (Alembic) → init-location → api + scheduler (parallel)
+init-config → init-db (Alembic) → init-location → solarhq-api + solarhq-scheduler (parallel)
 ```
 
 ### Backend (`backend/`)
 
-- `main.py` — FastAPI app with lifespan (startup/shutdown), mounts static frontend
-- `config.py` — singleton `AppConfig` loaded from `/data/.env`
-- `database.py` — async SQLAlchemy engine + session factory (aiosqlite)
+- `main.py` — FastAPI app with lifespan (startup/shutdown), mounts static frontend at `/app/static`
+- `__main__.py` — entry point for `python3 -m backend`
+- `database.py` — async SQLAlchemy engine + session factory (aiosqlite), WAL mode
 - `ha_client.py` — httpx client for Supervisor API (sensor discovery, LTS stats fetch)
-- `middleware.py` — validates Ingress X-Remote-User-* headers
+- `middleware.py` — validates Ingress `X-Remote-User-*` headers
 - `models/` — SQLAlchemy ORM: `MonthlyEnergyRecord`, `Cost`, `SavingOffset`, `GridPrice`, `ProsumerPricing`, `AppConfig`
 - `schemas/` — Pydantic v2 request/response models
 - `routers/` — API endpoints: `dashboard`, `energy`, `costs`, `pricing`, `sensors`, `export`
-- `services/` — pure financial calculation functions: `savings`, `roi`, `payback`, `projection`, `solar_price`, `self_consumption`, `export_income`, `capacity`, `trends`; `dashboard.py` orchestrates them all
-- `tasks/` — APScheduler setup + `sync_energy_from_ha()` (fetches monthly LTS aggregates)
-- `migrations/` — Alembic versions
+- `services/` — pure financial calculation functions (see table below); `dashboard_orchestrator.py` aggregates them
+- `tasks/scheduler.py` — APScheduler setup; `tasks/sync_energy.py` — `sync_energy_from_ha()`; run via `python3 -m backend.tasks`
+- `migrations/` — Alembic versions (0001 initial, 0002 add_last_sync)
+- `scripts/init_location.py` — one-shot script to set location from HA config
 
 ### Frontend (`frontend/src/`)
 
 - Vue Router in **hash mode** (required for HA Ingress prefix compatibility)
-- Vite base URL set to `./` (relative, for Ingress)
+- Vite 8 (rolldown) with `base: './'` and `outDir: '../static'` — builds into `/static/` at repo root
+- Tailwind CSS v4 via `@tailwindcss/vite` plugin (no `tailwind.config.js` needed)
 - Views: `DashboardView`, `EnergyView`, `CostsView`, `PricingView`, `TrendsView`, `SettingsView`
-- Pinia stores per domain (dashboard, energy, costs, pricing, etc.)
-- Charts: ApexCharts via `vue3-apexcharts` in `components/charts/`
-- KPI cards in `components/kpi/`
+- Pinia stores: `dashboard.js`, `energy.js`, `costs.js`, `pricing.js`, `settings.js`
+- Charts: 9 ApexCharts components in `components/charts/`
+- KPI cards: 7 components in `components/kpi/`
+- `components/SensorSelect.vue` — reusable sensor entity picker
+- `utils/csvExport.js` — CSV download via blob URL
 
 ### HA Addon Infrastructure (`rootfs/`)
 
-s6-overlay service scripts in `rootfs/etc/s6-overlay/s6-rc.d/` and entry points in `rootfs/usr/bin/`.
+- `rootfs/usr/bin/` — entry point scripts: `solarhq-api`, `solarhq-scheduler`, `solarhq-db`, `solarhq-init`, `solarhq-location`
+- `rootfs/etc/s6-overlay/s6-rc.d/` — s6 service definitions with dependency ordering
+- `rootfs/etc/s6-overlay/s6-rc.d/user/contents.d/` — lists all services in the user bundle
 
 ## Development Commands
 
@@ -59,44 +65,49 @@ s6-overlay service scripts in `rootfs/etc/s6-overlay/s6-rc.d/` and entry points 
 ```bash
 cd frontend
 npm install
-npm run dev      # Dev server with hot reload
-npm run build    # Production build → dist/
+npm run dev      # Dev server on :3000 with /api proxy → :8099
+npm run build    # Production build → ../static/
 ```
 
 ### Backend
 ```bash
 cd backend
 pip install -r requirements.txt
-alembic upgrade head                          # Init/migrate DB
-uvicorn main:app --reload --port 8099         # Dev server
+alembic upgrade head                           # Init/migrate DB
+uvicorn backend.main:app --reload --port 8099  # Dev server (run from repo root)
 ```
 
-### Docker (full addon build)
+### Docker (local amd64 test build)
 ```bash
 docker build -t solarhq:dev \
-  --build-arg BUILD_FROM="ghcr.io/hassio-addons/base-python:3.11" \
+  --build-arg BUILD_FROM="ghcr.io/home-assistant/amd64-base-python:latest" \
   --build-arg BUILD_ARCH="amd64" \
   .
 ```
 
-### Multi-arch build
-```bash
-docker buildx build \
-  --platform linux/aarch64,linux/amd64,linux/arm/v7 \
-  -t ghcr.io/yourusername/solarhq:1.0.0 \
-  --push .
-```
+## CI/CD
+
+- **`.github/workflows/ci.yaml`** — runs on every push: hadolint, shellcheck, YAML lint, pytest
+- **`.github/workflows/deploy.yaml`** — triggers on `v*` tags; builds and pushes multi-arch images to ghcr.io
+- Deploy matrix: `amd64` (linux/amd64), `aarch64` (linux/arm64), `armv7` (linux/arm/v7)
+- After build, `update-build-yaml` job pins the version in `build.yaml` and commits back to main
+- Images published to: `ghcr.io/silviu-suhoverschi/solarhq/{arch}:{version}`
 
 ## Key Technical Decisions
 
 - **SQLite WAL mode** at `/data/db.sqlite3` — persisted via HA's `/data` mount
 - **Hash-mode Vue Router** — avoids Ingress path prefix conflicts
-- **Relative Vite base (`./`)** — FastAPI serves the frontend at `/`, charts and assets resolve correctly under any Ingress path
-- **APScheduler inside the FastAPI process** — not a separate service; runs the hourly HA sync
+- **Relative Vite base (`./`)** — FastAPI serves the frontend at `/`, assets resolve correctly under any Ingress path
+- **Frontend build forced to `linux/amd64`** — rolldown (Vite 8's Rust bundler) has no `linux-arm-musleabihf` binding; frontend stage uses `FROM --platform=linux/amd64 node:20-alpine`, final image is still the correct target arch
+- **`npm install` (not `npm ci`)** in Dockerfile — avoids lockfile arch mismatch for optional native deps
+- **`python3 -m backend.tasks`** for scheduler — avoids relative import errors when running as a script
+- **APScheduler inside the FastAPI process** — not a separate service; scheduler runs as a separate s6 service calling `python3 -m backend.tasks`
 - **LTS statistics API** (`/api/history/period`) — fetches monthly kWh aggregates from HA Recorder; never raw sensor state
 - **AppConfig singleton** (id=1 row in DB) — stores sensor entity mappings and last sync timestamp
 - **Ingress auth** — `X-Remote-User` / `X-Remote-User-Display-Name` headers injected by HA; middleware enforces presence
 - **`SUPERVISOR_TOKEN`** env var — injected automatically by HA; never logged
+- **pydantic>=2.11.0** — required for Python 3.14 support (PyO3 ≥ 0.24); also needs `build-base libffi-dev rust cargo` in apk for compilation
+- **Hadolint suppressions**: `DL3006` on `FROM $BUILD_FROM` (dynamic base), `DL3018` on apk installs, `DL3029` on `--platform` override for frontend stage
 
 ## Addon Options (set in HA Supervisor UI)
 
@@ -105,6 +116,8 @@ docker buildx build \
 | `language` | ro / en / de / fr / es |
 | `currency` | RON / EUR / USD / GBP |
 | `log_level` | trace / debug / info / notice / warning / error / fatal |
+
+Translations for these options: `translations/en.yaml`, `translations/ro.yaml`
 
 ## Financial Calculations
 
@@ -124,8 +137,10 @@ All implemented in `backend/services/` as pure functions taking ORM objects:
 
 ## Target Platforms
 
-- aarch64 (Raspberry Pi 4)
+- aarch64 (Raspberry Pi 4) — primary target
 - amd64 (NUC, VMs)
 - armv7 (older Raspberry Pi)
+
+Base images: `ghcr.io/home-assistant/{arch}-base-python:latest`
 
 Watchdog endpoint: `GET /health` → `{"status": "ok"}`
