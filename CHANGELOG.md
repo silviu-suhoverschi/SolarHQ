@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.0.10] - 2026-03-27
+
+### Fixed
+- `frontend/api/index.js`: derive axios `baseURL` from `window.location.pathname` instead of hardcoded `/api` — fixes 404 errors when running under HA Ingress path prefix
+
 ## [1.0.9] - 2026-03-27
 
 ### Fixed
