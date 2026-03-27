@@ -4,6 +4,7 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse
 from .middleware import HAIngressMiddleware
+from .routers import energy, costs, pricing
 
 # Lifespan for startup/shutdown events
 @asynccontextmanager
@@ -28,6 +29,11 @@ app.add_middleware(HAIngressMiddleware)
 async def health_check():
     return {"status": "ok", "version": "1.0.0"}
 
+# Register Routers under /api
+app.include_router(energy.router, prefix="/api")
+app.include_router(costs.router, prefix="/api")
+app.include_router(pricing.router, prefix="/api")
+
 # Static files for frontend
 # Based on Acceptance Criteria: StaticFiles(html=True) for SPA fallback support
 STATIC_PATH = "/app/static"
@@ -44,7 +50,7 @@ if os.path.exists(STATIC_PATH):
             return FileResponse(os.path.join(STATIC_PATH, "index.html"))
         return JSONResponse(status_code=404, content={"detail": "API Route Not Found"})
 
-# Planned Router Imports (Faza 3.4+)
-# from .routers import dashboard, energy, costs, pricing, sensors, export
+# Planned Router Imports (Faza 4+)
+# from .routers import dashboard, sensors, export
 # app.include_router(dashboard.router, prefix="/api")
-# ... (rest will be added as implemented)
+# ...

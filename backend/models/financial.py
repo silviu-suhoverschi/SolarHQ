@@ -30,13 +30,13 @@ class GridPrice(Base):
     year: Mapped[int]
     month: Mapped[int]
     price_per_kwh: Mapped[float]
-    is_peak: Mapped[bool] = mapped_column(default=False)
+    time_of_use: Mapped[str] = mapped_column(default="flat") # "flat", "peak", "offpeak"
     currency: Mapped[str] = mapped_column(default="RON")
     
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(server_default=func.now(), onupdate=func.now())
 
-    __table_args__ = (UniqueConstraint("year", "month", "is_peak", name="uq_grid_price_year_month_peak"),)
+    __table_args__ = (UniqueConstraint("year", "month", "time_of_use", name="uq_grid_price_period_tou"),)
 
 class ProsumerPricing(Base):
     __tablename__ = "prosumer_pricing"

@@ -62,12 +62,12 @@ def upgrade() -> None:
         sa.Column('year', sa.Integer(), nullable=False),
         sa.Column('month', sa.Integer(), nullable=False),
         sa.Column('price_per_kwh', sa.Float(), nullable=False),
-        sa.Column('is_peak', sa.Boolean(), nullable=False, server_default='0'),
+        sa.Column('time_of_use', sa.String(), nullable=False, server_default='flat'),
         sa.Column('currency', sa.String(), nullable=False, server_default='RON'),
         sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.func.now()),
         sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.func.now(), onupdate=sa.func.now()),
         sa.PrimaryKeyConstraint('id'),
-        sa.UniqueConstraint('year', 'month', 'is_peak', name='uq_grid_price_year_month_peak'),
+        sa.UniqueConstraint('year', 'month', 'time_of_use', name='uq_grid_price_period_tou'),
     )
 
     op.create_table(
