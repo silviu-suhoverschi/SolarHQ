@@ -1,7 +1,10 @@
 import axios from 'axios'
 
+// Derive API base from current page location so it works under any HA Ingress path prefix.
+// e.g. https://ha.local/api/hassio_ingress/TOKEN/ → baseURL = .../TOKEN/api
+const _basePath = window.location.pathname.replace(/\/$/, '')
 const api = axios.create({
-  baseURL: '/api',  // relative — works with any Ingress sub-path
+  baseURL: `${window.location.origin}${_basePath}/api`,
   timeout: 30000,
 })
 
