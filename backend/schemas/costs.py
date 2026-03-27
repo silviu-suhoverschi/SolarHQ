@@ -1,6 +1,5 @@
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, computed_field
 from datetime import date, datetime
-from typing import computed_field
 
 class CostBase(BaseModel):
     date: date
