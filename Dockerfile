@@ -1,7 +1,7 @@
 # Stage 1 — build frontend
 FROM node:20-alpine AS frontend-builder
 WORKDIR /build
-COPY frontend/package*.json frontend/vite.config.js frontend/tailwind.config.js ./
+COPY frontend/package*.json frontend/vite.config.js ./
 RUN npm ci
 COPY frontend/ .
 RUN npm run build
@@ -19,7 +19,7 @@ RUN pip3 install --no-cache-dir -r /app/backend/requirements.txt
 
 # App code
 COPY backend/ /app/backend/
-COPY --from=frontend-builder /build/dist/ /app/static/
+COPY --from=frontend-builder /static/ /app/static/
 
 # s6-overlay scripts
 COPY rootfs /
