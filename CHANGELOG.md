@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.0.7] - 2026-03-27
+
+### Fixed
+- CI: add Docker Hub login before QEMU setup to avoid rate limiting when pulling `tonistiigi/binfmt`
+
 ## [1.0.6] - 2026-03-27
 
 ### Fixed
