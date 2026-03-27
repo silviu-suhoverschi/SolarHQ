@@ -1,3 +1,4 @@
 #!/command/with-contenv bash
 . /etc/solarhq.env
-exec python3 /app/backend/tasks/scheduler.py
+cd /app
+exec python3 -m backend.tasks

@@ -17,13 +17,13 @@ jobs:
       matrix:
         include:
           - arch: amd64
-            build_from: ghcr.io/hassio-addons/base-python:3.11
+            build_from: ghcr.io/home-assistant/amd64-base-python:latest
             platform: linux/amd64
           - arch: aarch64
-            build_from: ghcr.io/hassio-addons/base-python/aarch64:3.11
+            build_from: ghcr.io/home-assistant/aarch64-base-python:latest
             platform: linux/arm64
           - arch: armv7
-            build_from: ghcr.io/hassio-addons/base-python/armv7:3.11
+            build_from: ghcr.io/home-assistant/armv7-base-python:latest
             platform: linux/arm/v7
 
     steps:
