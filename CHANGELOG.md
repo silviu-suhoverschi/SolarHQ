@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.0.5] - 2026-03-27
+
+### Fixed
+- Add `cd /app` before `uvicorn` in `solarhq-api` — uvicorn could not find module `backend` without correct working directory
+- Add `cd /app` and use `python3 -m backend.scripts.init_location` in `solarhq-location` — same root cause
+
 ## [1.0.4] - 2026-03-27
 
 ### Fixed
