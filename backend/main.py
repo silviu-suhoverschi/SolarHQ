@@ -20,7 +20,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="SolarHQ",
-    version="1.0.0",
+    version="1.0.2",
     lifespan=lifespan,
     docs_url="/api/docs",
     openapi_url="/api/openapi.json"
@@ -31,7 +31,7 @@ app.add_middleware(HAIngressMiddleware)
 
 @app.get("/health")
 async def health_check():
-    return {"status": "ok", "version": "1.0.0"}
+    return {"status": "ok", "version": "1.0.2"}
 
 # Register Routers under /api
 app.include_router(energy.router, prefix="/api")
