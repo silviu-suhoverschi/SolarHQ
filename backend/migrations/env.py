@@ -16,9 +16,8 @@ from backend.models import *
 # access to the values within the .ini file in use.
 config = context.config
 
-# Set sqlalchemy.url from database.py if not set in ini
-if not config.get_main_option("sqlalchemy.url"):
-    config.set_main_option("sqlalchemy.url", DATABASE_URL)
+# Always set sqlalchemy.url from database.py (reads DATA_PATH env var)
+config.set_main_option("sqlalchemy.url", DATABASE_URL)
 
 # Interpret the config file for Python logging.
 if config.config_file_name is not None:
