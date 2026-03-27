@@ -9,6 +9,7 @@ arch:
   - armv7
 init: false
 startup: application
+apparmor: true
 ingress: true
 ingress_port: 8099
 ingress_entry: "/"
