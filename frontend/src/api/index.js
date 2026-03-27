@@ -28,10 +28,12 @@ export const costsApi = {
 }
 
 export const pricingApi = {
-  list: () => api.get('/pricing/'),
-  create: (data) => api.post('/pricing/', data),
-  update: (id, data) => api.put(`/pricing/${id}`, data),
-  delete: (id) => api.delete(`/pricing/${id}`),
+  listGrid: (year) => api.get('/pricing/grid', { params: year ? { year } : {} }),
+  createGrid: (data) => api.post('/pricing/grid', data),
+  listProsumer: (year) => api.get('/pricing/prosumer', { params: year ? { year } : {} }),
+  createProsumer: (data) => api.post('/pricing/prosumer', data),
+  getSavingsOffset: () => api.get('/pricing/savings-offset'),
+  updateSavingsOffset: (data) => api.put('/pricing/savings-offset', data),
 }
 
 export const dashboardApi = {
