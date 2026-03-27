@@ -1,0 +1,20 @@
+configuration:
+  log_level:
+    name: Nivel de Logare
+    description: >-
+      Setează verbozitatea logurilor. Folosiți 'debug' pentru depanare,
+      'info' pentru funcționare normală, 'warning' pentru loguri minime.
+  language:
+    name: Limba Interfeței
+    description: >-
+      Limba utilizată în interfața SolarHQ.
+      Schimbarea necesită repornire.
+  currency:
+    name: Moneda
+    description: >-
+      Moneda utilizată pentru toate calculele financiare.
+      Schimbarea necesită actualizarea manuală a datelor de prețuri existente.
+
+network:
+  8099/tcp:
+    description: Interfața web SolarHQ (Ingress)

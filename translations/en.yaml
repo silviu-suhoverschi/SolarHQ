@@ -1,0 +1,20 @@
+configuration:
+  log_level:
+    name: Log Level
+    description: >-
+      Sets the logging verbosity. Use 'debug' for troubleshooting,
+      'info' for normal operation, 'warning' for minimal logging.
+  language:
+    name: Interface Language
+    description: >-
+      Language used in the SolarHQ interface.
+      Changing this requires a restart.
+  currency:
+    name: Currency
+    description: >-
+      Currency used for all financial calculations and displays.
+      Changing this requires a manual update of existing pricing data.
+
+network:
+  8099/tcp:
+    description: SolarHQ web interface (Ingress)
