@@ -3,6 +3,6 @@ build_from:
   amd64: "ghcr.io/home-assistant/amd64-base-python:latest"
   armv7: "ghcr.io/home-assistant/armv7-base-python:latest"
 labels:
-  io.hass.version: "1.0.3"
+  io.hass.version: "1.0.4"
   io.hass.type: "addon"
   io.hass.arch: "aarch64|amd64|armv7"

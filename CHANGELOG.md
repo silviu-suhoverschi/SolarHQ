@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.0.4] - 2026-03-27
+
+### Fixed
+- Remove `bashio::addon.ingress_path` call from `solarhq-api` script — function does not exist in bashio; `INGRESS_PATH` was unused in backend
+
 ## [1.0.3] - 2026-03-27
 
 ### Fixed
