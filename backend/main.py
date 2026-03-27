@@ -4,15 +4,19 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse
 from .middleware import HAIngressMiddleware
-from .routers import energy, costs, pricing, dashboard
+from .tasks.scheduler import start_scheduler
+from .routers import energy, costs, pricing, dashboard, sensors, export
 
 # Lifespan for startup/shutdown events
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Prepare things here (e.g. start scheduler later in Phase 5)
-    print("SolarHQ Backend starting...")
+    # Start background scheduler
+    scheduler = start_scheduler()
+    print("SolarHQ Backend and Scheduler started.")
     yield
-    print("SolarHQ Backend shutting down...")
+    # Shutdown scheduler
+    scheduler.shutdown()
+    print("SolarHQ Backend and Scheduler stopped.")
 
 app = FastAPI(
     title="SolarHQ",

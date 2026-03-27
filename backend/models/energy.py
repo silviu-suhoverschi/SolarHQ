@@ -12,11 +12,14 @@ class MonthlyEnergyRecord(Base):
     load: Mapped[float] = mapped_column(default=0)
     grid_import: Mapped[float] = mapped_column(default=0)
     grid_export: Mapped[float] = mapped_column(default=0)
-    battery_charge: Mapped[float | None] = mapped_column(default=None, nullable=True)
-    battery_discharge: Mapped[float | None] = mapped_column(default=None, nullable=True)
-    source: Mapped[str] = mapped_column(default="ha_sync") # "manual" or "ha_sync"
+    battery_charge: Mapped[float | None] = mapped_column(nullable=True)
+    battery_discharge: Mapped[float | None] = mapped_column(nullable=True)
+    source: Mapped[str] = mapped_column(default="manual")
+    
+    # User requested last_sync per record
+    last_sync: Mapped[datetime | None] = mapped_column(nullable=True)
     
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(server_default=func.now(), onupdate=func.now())
 
-    __table_args__ = (UniqueConstraint("year", "month", name="uq_monthly_energy_year_month"),)
+    __table_args__ = (UniqueConstraint("year", "month", name="uq_energy_year_month"),)
