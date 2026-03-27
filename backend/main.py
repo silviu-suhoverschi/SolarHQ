@@ -1,8 +1,8 @@
 import os
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import JSONResponse, FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 from .middleware import HAIngressMiddleware
 
 # Lifespan for startup/shutdown events
@@ -29,23 +29,22 @@ async def health_check():
     return {"status": "ok", "version": "1.0.0"}
 
 # Static files for frontend
-# Based on Dockerfile criteria #1: Frontend copied to /app/static
+# Based on Acceptance Criteria: StaticFiles(html=True) for SPA fallback support
 STATIC_PATH = "/app/static"
 
 if os.path.exists(STATIC_PATH):
-    app.mount("/static", StaticFiles(directory=STATIC_PATH), name="static")
+    # Mount static files at root / for SPA support
+    # html=True enables automatic serving of index.html for directories
+    app.mount("/", StaticFiles(directory=STATIC_PATH, html=True), name="frontend")
+    
+    # Catch-all route for SPA routing (redirect to index.html if not found)
+    @app.exception_handler(404)
+    async def spa_fallback(request, exc):
+        if not request.url.path.startswith("/api"):
+            return FileResponse(os.path.join(STATIC_PATH, "index.html"))
+        return JSONResponse(status_code=404, content={"detail": "API Route Not Found"})
 
-    @app.get("/{full_path:path}")
-    async def serve_spa(request: Request, full_path: str):
-        # Serve index.html for all non-api routes to support SPA routing
-        if full_path.startswith("api"):
-            return JSONResponse(status_code=404, content={"detail": "Not Found"})
-        
-        index_file = os.path.join(STATIC_PATH, "index.html")
-        if os.path.exists(index_file):
-            return FileResponse(index_file)
-        return JSONResponse(status_code=404, content={"detail": "Frontend not found"})
-else:
-    @app.get("/")
-    async def root():
-        return {"message": "SolarHQ API is running. Frontend not found at /app/static."}
+# Planned Router Imports (Faza 3.4+)
+# from .routers import dashboard, energy, costs, pricing, sensors, export
+# app.include_router(dashboard.router, prefix="/api")
+# ... (rest will be added as implemented)
