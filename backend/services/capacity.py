@@ -1,3 +1,4 @@
+from __future__ import annotations
 import calendar
 from ..models import MonthlyEnergyRecord
 from ..schemas.services import CapacityResult

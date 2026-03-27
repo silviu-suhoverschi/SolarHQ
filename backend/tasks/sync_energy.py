@@ -1,3 +1,4 @@
+from __future__ import annotations
 from datetime import datetime, UTC, timedelta
 from sqlalchemy import select
 from ..database import SessionLocal

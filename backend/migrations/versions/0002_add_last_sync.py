@@ -1,3 +1,4 @@
+from __future__ import annotations
 """add last_sync to energy record
 
 Revision ID: 0002

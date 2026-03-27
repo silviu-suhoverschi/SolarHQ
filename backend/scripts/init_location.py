@@ -1,3 +1,4 @@
+from __future__ import annotations
 """
 Seed AppConfig with HA location name and currency on first boot.
 Called by s6 init-location oneshot service.

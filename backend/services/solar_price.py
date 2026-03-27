@@ -1,3 +1,4 @@
+from __future__ import annotations
 from ..models import MonthlyEnergyRecord, Cost
 from ..schemas.services import SolarPriceResult
 

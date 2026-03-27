@@ -1,3 +1,4 @@
+from __future__ import annotations
 import asyncio
 from . import (
     calc_savings, calc_roi, calc_payback, calc_projection_5y,

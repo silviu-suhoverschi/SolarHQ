@@ -1,3 +1,4 @@
+from __future__ import annotations
 from ..models import MonthlyEnergyRecord
 from ..schemas.services import (
     TrendsResult, SeasonalAverage, YoYData, ROIForecast, ROIScenario, MonthlySaving,

@@ -1,3 +1,4 @@
+from __future__ import annotations
 from pydantic import BaseModel, ConfigDict, Field, computed_field
 from datetime import date, datetime
 

@@ -1,3 +1,4 @@
+from __future__ import annotations
 from ..models import MonthlyEnergyRecord, GridPrice, SavingOffset
 from ..schemas.services import SavingsResult, MonthlySaving
 

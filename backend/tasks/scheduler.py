@@ -1,3 +1,4 @@
+from __future__ import annotations
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
 from .sync_energy import sync_energy_from_ha

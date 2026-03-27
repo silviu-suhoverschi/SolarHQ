@@ -1,3 +1,4 @@
+from __future__ import annotations
 """
 Entry point for the standalone scheduler process.
 Used by s6 longrun service solarhq-scheduler.

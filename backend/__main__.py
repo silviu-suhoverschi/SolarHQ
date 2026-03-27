@@ -1,3 +1,4 @@
+from __future__ import annotations
 import uvicorn
 import signal
 import sys

@@ -1,3 +1,4 @@
+from __future__ import annotations
 from ..models import MonthlyEnergyRecord, ProsumerPricing
 from ..schemas.services import ExportIncomeResult, MonthlyExportIncome
 
