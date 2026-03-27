@@ -1,0 +1,31 @@
+name: "SolarHQ"
+version: "1.0.0"
+slug: "solarhq"
+description: "Solar energy monitoring for Home Assistant"
+url: "https://github.com/silviu-suhoverschi/SolarHQ"
+arch:
+  - aarch64
+  - amd64
+  - armv7
+init: false
+startup: application
+ingress: true
+ingress_port: 8099
+ingress_entry: "/"
+panel_icon: "mdi:solar-power"
+panel_title: "SolarHQ"
+homeassistant_api: true
+hassio_api: true
+auth_api: true
+watchdog: "http://[HOST]:[PORT:8099]/health"
+map:
+  - type: data
+    read_only: false
+options:
+  log_level: "info"
+  language: "ro"
+  currency: "RON"
+schema:
+  log_level: "list(trace|debug|info|notice|warning|error|fatal)"
+  language: "list(ro|en|de|fr|es)"
+  currency: "list(RON|EUR|USD|GBP)"

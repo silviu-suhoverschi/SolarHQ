@@ -1,0 +1,11 @@
+#!/command/with-contenv bash
+. /etc/solarhq.env
+. /usr/lib/bashio/bashio.sh
+INGRESS_PATH=$(bashio::addon.ingress_path)
+export INGRESS_PATH
+exec uvicorn backend.main:app \
+    --host 0.0.0.0 \
+    --port 8099 \
+    --workers 1 \
+    --log-level "${LOG_LEVEL}" \
+    --no-access-log

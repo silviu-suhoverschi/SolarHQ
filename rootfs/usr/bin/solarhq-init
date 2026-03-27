@@ -1,0 +1,17 @@
+#!/command/with-contenv bash
+# Import bashio library
+. /usr/lib/bashio/bashio.sh
+
+[ ! -f /data/.secret_key ] && \
+    python3 -c "import secrets; print(secrets.token_urlsafe(50))" > /data/.secret_key
+
+{
+    printf "SECRET_KEY=%s\n" "$(cat /data/.secret_key)"
+    printf "LANGUAGE=%s\n"   "$(bashio::config 'language')"
+    printf "CURRENCY=%s\n"   "$(bashio::config 'currency')"
+    printf "LOG_LEVEL=%s\n"  "$(bashio::config 'log_level')"
+    printf "SUPERVISOR_TOKEN=%s\n" "${SUPERVISOR_TOKEN}"
+} > /etc/solarhq.env
+
+mkdir -p /data/media /data/logs
+bashio::log.info "Config OK"

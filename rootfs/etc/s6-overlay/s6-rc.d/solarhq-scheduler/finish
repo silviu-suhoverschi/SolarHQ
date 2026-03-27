@@ -1,0 +1,5 @@
+#!/command/with-contenv bash
+. /usr/lib/bashio/bashio.sh
+EXIT_CODE=$1
+SIGNAL=$2
+bashio::log.warning "Service solarhq-scheduler stopped with exit code $EXIT_CODE and signal $SIGNAL"
