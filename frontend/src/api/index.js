@@ -1,10 +1,10 @@
 import axios from 'axios'
 
-// Derive API base from current page location so it works under any HA Ingress path prefix.
-// e.g. https://ha.local/api/hassio_ingress/TOKEN/ → baseURL = .../TOKEN/api
-const _basePath = window.location.pathname.replace(/\/$/, '')
+// HA Ingress injects X-Ingress-Path header; backend reads it and sets window.BASE_URL.
+// See: https://developers.home-assistant.io/docs/apps/presentation/
+const _ingressBase = window.BASE_URL ?? ''
 const api = axios.create({
-  baseURL: `${window.location.origin}${_basePath}/api`,
+  baseURL: `${_ingressBase}/api`,
   timeout: 30000,
 })
 
