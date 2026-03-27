@@ -3,46 +3,25 @@
 profile solarhq flags=(attach_disconnected,mediate_deleted) {
   #include <abstractions/base>
 
-  # Allow network access (required for HA Supervisor API and Ingress)
-  network inet tcp,
-  network inet udp,
-  network inet6 tcp,
-  network inet6 udp,
+  # Broad file access (read/write/append/lock, NOT execute)
+  file,
 
-  # Allow file capabilities
-  capability,
+  # Signal handling (for s6-overlay service control)
+  signal (send) set=(kill,term,int,hup,cont),
 
-  # Process execution
-  /usr/bin/python3* ix,
-  /usr/bin/node* ix,
-  /usr/local/bin/python3* ix,
-  /usr/local/bin/uvicorn ix,
-  /command/** ix,
-  /usr/bin/** ix,
-  /usr/local/bin/** ix,
-
-  # s6-overlay
-  /etc/s6-overlay/** r,
-  /run/s6/** rw,
-  /run/service/** rw,
-  /var/run/** rw,
-
-  # Application data
-  /app/** r,
-  /app/static/** r,
-
-  # SQLite database in /data
-  /data/** rw,
-  /data/solarhq.db-wal rw,
-  /data/solarhq.db-shm rw,
-
-  # Environment and config
-  /etc/solarhq.env rw,
-  /proc/*/net/if_inet6 r,
-  /proc/sys/net/** r,
+  # s6-overlay entry point and runtime
+  /init                  ix,
+  /bin/**                ix,
+  /usr/bin/**            ix,
+  /usr/local/bin/**      ix,
+  /command/**            ix,
+  /package/**            ix,
+  /run/s6/**             rwix,
 
   # Deny sensitive paths
   deny /etc/shadow r,
   deny /etc/passwd w,
   deny /root/** rw,
+  deny /proc/*/net/if_inet6 r,
+  deny /proc/*/net/ipv6_route r,
 }
