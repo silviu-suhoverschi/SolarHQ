@@ -1,4 +1,4 @@
 #!/command/with-contenv bash
 . /etc/solarhq.env
 cd /app/backend && alembic upgrade head
-. /usr/lib/bashio/bashio.sh && bashio::log.info "DB OK"
+echo "DB OK"
