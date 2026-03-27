@@ -38,6 +38,8 @@ app.include_router(energy.router, prefix="/api")
 app.include_router(costs.router, prefix="/api")
 app.include_router(pricing.router, prefix="/api")
 app.include_router(dashboard.router, prefix="/api")
+app.include_router(sensors.router, prefix="/api")
+app.include_router(export.router, prefix="/api")
 
 # Static files for frontend
 # Based on Acceptance Criteria: StaticFiles(html=True) for SPA fallback support
